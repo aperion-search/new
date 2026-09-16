@@ -5,20 +5,20 @@ export DATA_DIR="${DATA_DIR:-/data}"
 export DB_PATH="${DATA_DIR}/storage.sqlite"
 
 # 1. Restore state from Hugging Face on cold boot
-python3 /app/sync.py restore
+python3 /sync.py restore
 
 # 2. Background worker: periodic backup every 5 minutes
 (
     while true; do
         sleep 300
-        python3 /app/sync.py backup
+        python3 /sync.py backup
     done
 ) &
 
-# 3. Graceful shutdown handler: sync final state when Render stops/restarts container
+# 3. Graceful shutdown handler
 shutdown_handler() {
     echo "==> Shutdown signal received. Performing final sync..."
-    python3 /app/sync.py backup
+    python3 /sync.py backup
     exit 0
 }
 
