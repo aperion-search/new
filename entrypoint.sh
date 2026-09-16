@@ -25,7 +25,21 @@ shutdown_handler() {
 
 trap 'shutdown_handler' SIGTERM SIGINT
 
-# 4. Hand off execution to the container's native command
-exec "$@" &
-child_pid=$!
-wait "$child_pid"
+# 4. Target application startup
+if [ $# -gt 0 ]; then
+    "$@" &
+else
+    # Execute Next.js standalone entrypoint directly
+    if [ -f "/app/server.js" ]; then
+        node /app/server.js &
+    elif [ -f "server.js" ]; then
+        node server.js &
+    else
+        npm run start &
+    fi
+fi
+
+APP_PID=$!
+
+# Keep entrypoint alive and wait on app process
+wait "$APP_PID"
