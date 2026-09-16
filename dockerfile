@@ -2,18 +2,17 @@ FROM diegosouzapw/omniroute:latest
 
 USER root
 
-# Install Python and huggingface_hub
+# Install Python and huggingface_hub client
 RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && \
     pip3 install --no-cache-dir --break-system-packages huggingface_hub && \
     rm -rf /var/lib/apt/lists/*
 
-# Keep OmniRoute's original app path
-WORKDIR /app
-
-COPY sync.py /app/sync.py
+COPY sync.py /sync.py
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /app/sync.py
+RUN chmod +x /entrypoint.sh /sync.py
 
+# Ensure PORT is defined for Render binding
+ENV PORT=3000
 ENV DATA_DIR=/data
+
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["npm", "start"]
