@@ -3,11 +3,9 @@ set -e
 
 export DATA_DIR="${DATA_DIR:-/data}"
 export DB_PATH="${DATA_DIR}/storage.sqlite"
+export PORT="${PORT:-3000}"
 
-# Ensure we are in the application root directory
-cd /app
-
-# 1. Restore state from Hugging Face on cold boot
+# 1. Restore database snapshot from HF on cold boot
 python3 /app/sync.py restore || true
 
 # 2. Background worker: periodic backup every 5 minutes
@@ -27,5 +25,7 @@ shutdown_handler() {
 
 trap 'shutdown_handler' SIGTERM SIGINT
 
-# 4. Start OmniRoute process
-exec "$@"
+# 4. Hand off execution to the container's native command
+exec "$@" &
+child_pid=$!
+wait "$child_pid"
