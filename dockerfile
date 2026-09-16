@@ -13,6 +13,7 @@ RUN chmod +x /entrypoint.sh /app/sync.py
 
 ENV DATA_DIR=/data
 ENV PORT=3000
+WORKDIR /app
 
 ENTRYPOINT ["/entrypoint.sh"]
-# Notice: CMD is deliberately omitted so it inherits the base image's production startup command
+CMD ["node", "server.js"]
